@@ -30,7 +30,7 @@ func Apply(directory string) (string, bool) {
 	if err := exec.Command("terraform", "init").Run(); err != nil {
 		return "could not initialize terraform", false
 	}
-	planCmd := exec.Command("terraform", "apply", "-auto-approve")
+	planCmd := exec.Command("terraform", "apply", "-auto-approve", "-no-color")
 	output := &strings.Builder{}
 	planCmd.Stdout = output
 	planCmd.Stderr = output
