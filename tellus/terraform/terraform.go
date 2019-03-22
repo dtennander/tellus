@@ -1,6 +1,7 @@
 package terraform
 
 import (
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -33,5 +34,8 @@ func Apply(directory string) (string, bool) {
 	output := &strings.Builder{}
 	planCmd.Stdout = output
 	err := planCmd.Run()
+	if err != nil {
+		log.Print(err.Error())
+	}
 	return output.String(), err == nil
 }

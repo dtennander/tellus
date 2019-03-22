@@ -3,6 +3,7 @@ package ghclient
 import (
 	"context"
 	"github.com/google/go-github/v24/github"
+	"log"
 	"time"
 )
 
@@ -54,6 +55,7 @@ func (c *Client) CreateCommitStatus(owner string, repo string, commit string, su
 	} else {
 		conclusion = "failure"
 	}
+	log.Printf("Reporting back %s status on commit %s", conclusion, commit)
 	summary := "Tellus have run terraform " + tfCommand
 	title := "Tellus: " + tfCommand
 	_, _, err := c.checksService.CreateCheckRun(
