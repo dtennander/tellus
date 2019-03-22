@@ -33,6 +33,7 @@ func Apply(directory string) (string, bool) {
 	planCmd := exec.Command("terraform", "apply", "-auto-approve")
 	output := &strings.Builder{}
 	planCmd.Stdout = output
+	planCmd.Stderr = output
 	err := planCmd.Run()
 	if err != nil {
 		log.Print(err.Error())
