@@ -82,12 +82,12 @@ func (c *Client) checkoutCode(repoName string, commit string) (*gitservice.GitRe
 }
 
 func (c *Client) NewPush(payload *github.PushEvent) error {
-	fullName := *payload.Repo.FullName
-	commit := *payload.HeadCommit.ID
 	if *payload.Ref != "refs/heads/master" {
 		log.Printf("Ignoring push to %s", *payload.Ref)
 		return nil
 	}
+	fullName := *payload.Repo.FullName
+	commit := *payload.HeadCommit.ID
 	repo, err := c.checkoutCode(fullName, commit)
 	tfDirectory, err := getTfDirs(repo.Directory)
 	if err != nil || tfDirectory == "" {
