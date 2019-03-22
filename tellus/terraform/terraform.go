@@ -11,6 +11,9 @@ func Plan(directory string) (string, bool) {
 	if err := os.Chdir(string(directory)); err != nil {
 		return "", false
 	}
+	if err := exec.Command("terraform", "init").Run(); err != nil {
+		return "could not initialize terraform", false
+	}
 	planCmd := exec.Command("terraform", "plan", "-no-color")
 	output := &strings.Builder{}
 	planCmd.Stdout = output
@@ -22,6 +25,9 @@ func Plan(directory string) (string, bool) {
 func Apply(directory string) (string, bool) {
 	if err := os.Chdir(string(directory)); err != nil {
 		return err.Error(), false
+	}
+	if err := exec.Command("terraform", "init").Run(); err != nil {
+		return "could not initialize terraform", false
 	}
 	planCmd := exec.Command("terraform", "apply", "-auto-approve")
 	output := &strings.Builder{}

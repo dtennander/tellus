@@ -65,7 +65,7 @@ func getTfDirs(baseDir string) (string ,error){
 	if err != nil {
 		return "", err
 	}
-	return config.TerraformDirectory, nil
+	return baseDir + "/" + config.TerraformDirectory, nil
 }
 
 
