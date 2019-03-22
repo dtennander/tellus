@@ -41,6 +41,7 @@ func (c *Client) NewPR(payload *github.PullRequestEvent) error {
 	if err != nil || tfDirectory == "" {
 		return err
 	}
+	log.Printf("found TF directory: %s", tfDirectory)
 	output, ok := terraform.Plan(tfDirectory)
 	owner := *payload.Repo.Owner.Login
 	repoName := *payload.Repo.Name
@@ -88,7 +89,12 @@ func (c *Client) NewPush(payload *github.PushEvent) error {
 		return nil
 	}
 	repo, err := c.checkoutCode(fullName, commit)
-	output, ok := terraform.Apply(repo.Directory)
+	tfDirectory, err := getTfDirs(repo.Directory)
+	if err != nil || tfDirectory == "" {
+		return err
+	}
+	log.Printf("found TF directory: %s", tfDirectory)
+	output, ok := terraform.Apply(tfDirectory)
 	owner := *payload.Repo.Owner.Name
 	repoName := *payload.Repo.Name
 	err = c.output.CreateCommitStatus(owner, repoName, commit, ok, output, "apply")
