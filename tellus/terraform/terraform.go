@@ -1,6 +1,7 @@
 package terraform
 
 import (
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -29,9 +30,13 @@ func Apply(directory string) (string, bool) {
 	if err := exec.Command("terraform", "init").Run(); err != nil {
 		return "could not initialize terraform", false
 	}
-	planCmd := exec.Command("terraform", "apply", "-auto-approve")
+	planCmd := exec.Command("terraform", "apply", "-no-color")
 	output := &strings.Builder{}
 	planCmd.Stdout = output
+	planCmd.Stderr = output
 	err := planCmd.Run()
+	if err != nil {
+		log.Print(err.Error())
+	}
 	return output.String(), err == nil
 }
