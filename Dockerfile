@@ -1,3 +1,7 @@
+
+#
+# Build Container
+#
 FROM golang:1.11 AS build
 
 RUN mkdir /app
@@ -14,7 +18,7 @@ COPY tellus ./tellus
 RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
 #
-# Running Container
+# Production Container
 #
 FROM alpine:3.6
 
