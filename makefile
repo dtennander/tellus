@@ -1,14 +1,13 @@
 
-IMAGE_TAG = $(shell find . -type f \( -exec sha1sum "$$PWD"/{} \; \) | awk '{print $$1}' | sort | sha1sum | cut -d ' ' -f 1 | cut -c -12)
+IMAGE_TAG ?= $(shell find . -type f \( -exec sha1sum "$$PWD"/{} \; \) | awk '{print $$1}' | sort | sha1sum | cut -d ' ' -f 1 | cut -c -12)
 IMAGE_REPO = tennander/tellus
 IMAGE_NAME = $(IMAGE_REPO):$(IMAGE_TAG)
 
 .PHONY: run
 
-run: deploy logs
+run: deploy_locally logs
 
 logs:
-	while kubectl get all | grep pod/tellus-deployment | grep -q 0/1; do sleep 1; done
 	kubectl logs -f deployment.apps/tellus-deployment
 
 clean:
