@@ -1,3 +1,4 @@
+// Internal package for service web hooks to Tellus.
 package http
 
 import (
@@ -9,7 +10,10 @@ import (
 	"tellus/tellus"
 )
 
-func ServeHttpClient(port string, client *tellus.Client) {
+// Create a http server serving on the given port with the paths:
+//   - "/api/github/webhook": The web hook for github.
+//   - "/healthz": Status check for checking the health of the service.
+func StartHttpServer(port string, client *tellus.Client) {
 	createRoutes(client)
 	log.Printf("starting webserver on port: %s", port)
 	err := http.ListenAndServe(":" + port, nil)

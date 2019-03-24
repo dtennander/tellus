@@ -1,3 +1,5 @@
+// Main package of the tellus bot.
+// Reads the configuration from disk and starts Tellus.
 package main
 
 import (
@@ -11,14 +13,22 @@ import (
 
 const DefaultConfigurationLocation = "/config/tellus.yml"
 
+// Deployment configuration that configures Tellus.
 type Configuration struct {
+	// The directory in which all repositories will be checked out and stored.
 	RepositoryRootDirectory string  `yaml:"repositoryRootDirectory"`
+	// The port on which the web server will be running.
 	WebPort string                  `yaml:"webPort"`
+	// Github configuration
 	Github struct{
+		// Information about the private key given by Github to authenticate Tellus.
 		PrivateKey struct{
+			// The location of the private key.
 			Location string	        `yaml:"location"`
 		}                           `yaml:"privateKey"`
+		// The integration id given by Github.
 		IntegrationId int           `yaml:"integrationId"`
+		// The installation id given by Github.
 		InstallationId int          `yaml:"installationId"`
 	}  	                            `yaml:"github"`
 }
@@ -38,7 +48,7 @@ func main() {
 	if err != nil {
 		log.Print(err.Error())
 	}
-	http.ServeHttpClient(config.WebPort, tellusClient)
+	http.StartHttpServer(config.WebPort, tellusClient)
 }
 
 func getConfiguration() (*Configuration, error) {

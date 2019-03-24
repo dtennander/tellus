@@ -1,3 +1,5 @@
+// Package for running terraform commands
+// Will require that terraform in present on the PATH.
 package terraform
 
 import (
