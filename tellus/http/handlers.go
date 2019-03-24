@@ -39,12 +39,17 @@ func healthzHandler() http.HandlerFunc {
 func webhookHandler(tellus *tellus.Client) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		eventType := r.Header.Get("X-GitHub-Event")
-		defer r.Body.Close()
 		switch eventType {
 		case "pull_request":
-			handlePullRequest(tellus, r.Body)
+			go func() {
+				defer r.Body.Close()
+				handlePullRequest(tellus, r.Body)
+			}()
 		case "push":
-			handlePush(tellus, r.Body)
+			go func() {
+				defer r.Body.Close()
+				handlePush(tellus, r.Body)
+			}()
 		}
 	}
 }
@@ -61,6 +66,7 @@ func handlePullRequest(tellusClient *tellus.Client, reader io.Reader) {
 		print(err.Error())
 		return
 	}
+	log.Printf("done handling pull_request event")
 }
 
 func handlePush(tellusClient *tellus.Client, reader io.Reader) {
@@ -75,5 +81,6 @@ func handlePush(tellusClient *tellus.Client, reader io.Reader) {
 		print(err.Error())
 		return
 	}
+	log.Printf("done handling push event")
 }
 
