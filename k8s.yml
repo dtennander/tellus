@@ -27,8 +27,6 @@ spec:
             - mountPath: /config
               name: config
           env:
-            - name: CONFIG_FILE
-              value: /config/config.yml
             - name: PORT
               value: "8080"
       volumes:
@@ -62,7 +60,7 @@ metadata:
   labels:
     app: tellus
 data:
-  config.yml: |
+  tellus.yml: |
     repositoryRootDirectory: /repos/
     github:
       privateKey:
