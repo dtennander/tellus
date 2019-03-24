@@ -9,19 +9,18 @@ import (
 	"tellus/tellus/http"
 )
 
-var PORT = os.Getenv("PORT")
-
 const DefaultConfigurationLocation = "/config/tellus.yml"
 
 type Configuration struct {
-	RepositoryRootDirectory string 	`yaml:"repositoryRootDirectory"`
+	RepositoryRootDirectory string  `yaml:"repositoryRootDirectory"`
+	WebPort string                  `yaml:"webPort"`
 	Github struct{
 		PrivateKey struct{
-			Location string			`yaml:"location"`
-		} 						    `yaml:"privateKey"`
-		IntegrationId int			`yaml:"integrationId"`
-		InstallationId int			`yaml:"installationId"`
-	}  `yaml:"github"`
+			Location string	        `yaml:"location"`
+		}                           `yaml:"privateKey"`
+		IntegrationId int           `yaml:"integrationId"`
+		InstallationId int          `yaml:"installationId"`
+	}  	                            `yaml:"github"`
 }
 
 func main() {
@@ -39,7 +38,7 @@ func main() {
 	if err != nil {
 		log.Print(err.Error())
 	}
-	http.ServeHttpClient(PORT, tellusClient)
+	http.ServeHttpClient(config.WebPort, tellusClient)
 }
 
 func getConfiguration() (*Configuration, error) {
