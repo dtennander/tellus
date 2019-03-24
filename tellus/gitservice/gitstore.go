@@ -23,10 +23,7 @@ func (repo *GitRepository) Checkout(commit string) error {
 	if err != nil {
 		return err
 	}
-	if err := wt.Checkout(&git.CheckoutOptions{Force: true, Hash: plumbing.NewHash(commit)}); err != nil {
-		return err
-	}
-	return nil
+	return wt.Checkout(&git.CheckoutOptions{Force: true, Hash: plumbing.NewHash(commit)})
 }
 
 // RepoStore stores and maintains git-repos available on disk.
