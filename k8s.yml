@@ -18,6 +18,7 @@ spec:
       containers:
         - name: tellus
           image: tennander/tellus
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
               name: webhook

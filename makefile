@@ -22,6 +22,10 @@ push: image
 
 deploy: push k8s.yml
 	sed "s#$(IMAGE_REPO)#$(IMAGE_NAME)#g" < k8s.yml >> k8s.yml.remove_me
+
+deploy_locally: image k8s.yml
+	sed "s#$(IMAGE_REPO)#$(IMAGE_NAME)#g;\
+		 s#imagePullPolicy: IfNotPresent#imagePullPolicy: Never#g" < k8s.yml >> k8s.yml.remove_me
 	kubectl apply -f k8s.yml.remove_me
 	rm k8s.yml.remove_me
 
