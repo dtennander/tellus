@@ -11,6 +11,8 @@ import (
 
 var PORT = os.Getenv("PORT")
 
+const DefaultConfigurationLocation = "/config/tellus.yml"
+
 type Configuration struct {
 	RepositoryRootDirectory string 	`yaml:"repositoryRootDirectory"`
 	Github struct{
@@ -24,14 +26,8 @@ type Configuration struct {
 
 func main() {
 	log.Printf("Starting tellus!")
-	fileLocation := os.Getenv("CONFIG_FILE")
-	bytes, err := ioutil.ReadFile(fileLocation)
+	config, err := getConfiguration()
 	if err != nil {
-		panic(err.Error())
-	}
-	log.Print(string(bytes))
-	var config Configuration
-	if err = yaml.Unmarshal(bytes, &config); err != nil {
 		panic(err.Error())
 	}
 	log.Print(config)
@@ -44,4 +40,26 @@ func main() {
 		log.Print(err.Error())
 	}
 	http.ServeHttpClient(PORT, tellusClient)
+}
+
+func getConfiguration() (*Configuration, error) {
+	fileLocation := getConfigLocation()
+	bytes, err := ioutil.ReadFile(fileLocation)
+	if err != nil {
+		return nil, err
+	}
+	log.Print(string(bytes))
+	var config Configuration
+	if err = yaml.Unmarshal(bytes, &config); err != nil {
+		return nil, err
+	}
+	return &config, nil
+}
+
+func getConfigLocation() string {
+	fl := os.Getenv("CONFIG_FILE")
+	if fl == "" {
+		fl = DefaultConfigurationLocation
+	}
+	return fl
 }
