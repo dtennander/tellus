@@ -27,9 +27,6 @@ spec:
               name: cert-key
             - mountPath: /config
               name: config
-          env:
-            - name: PORT
-              value: "8080"
       volumes:
         - name: cert-key
           secret:
@@ -63,6 +60,7 @@ metadata:
 data:
   tellus.yml: |
     repositoryRootDirectory: /repos/
+    webPort: 8080
     github:
       privateKey:
         location: /certs/key.pem
