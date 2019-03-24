@@ -1,4 +1,4 @@
-// Tellus is a Bot that integrates terraform CI/CD into any github repository.
+// Package Tellus is a Bot that integrates terraform CI/CD into any github repository.
 // Tellus assumes that it is run in an environment that is
 // authenticated and authorized to execute the terraform commands.
 // It also needs git and terraform present on the running environment.
@@ -16,19 +16,19 @@ import (
 	"tellus/tellus/terraform"
 )
 
-// The main Tellus client. The main API of the Tellus bot.
+// Client is the main API of the Tellus bot.
 type Client struct {
 	repositories  *gitservice.RepoStore
 	output 		  *ghclient.Client
 }
 
-// Creates a new Tellus client.
+// NewClient creates a new Tellus client.
 //
 // keyFile should be the private key given by Github to authenticate the app,
 // repoDirectory is the directory in which all repositories downloaded will be stored.
 // integrationId and installationID are ids given by Github to each App <-> Installation.
-func NewClient(keyFile string, repoDirectory string, integrationId int, installationId int) (*Client, error) {
-	itr, err := ghinstallation.NewKeyFromFile(http.DefaultTransport, integrationId, installationId, keyFile)
+func NewClient(keyFile string, repoDirectory string, integrationID int, installationID int) (*Client, error) {
+	itr, err := ghinstallation.NewKeyFromFile(http.DefaultTransport, integrationID, installationID, keyFile)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func NewClient(keyFile string, repoDirectory string, integrationId int, installa
 	}, nil
 }
 
-// Handle a new Pull Request.
+// NewPR handles a new Pull Request.
 // This will checkout the code, run terraform and send PR comment together with status check on commit.
 func (c *Client) NewPR(payload *github.PullRequestEvent) error {
 	repo, err := c.checkoutCode(*payload.Repo.FullName, *payload.PullRequest.Head.SHA)
@@ -92,7 +92,7 @@ func (c *Client) checkoutCode(repoName string, commit string) (*gitservice.GitRe
 }
 
 
-// Handle a new push event from Github.
+// NewPush handles a new push event from Github.
 // If the pushed branch is master
 // this will checkout the code, run terraform apply and send commit status bach with the result.
 func (c *Client) NewPush(payload *github.PushEvent) error {

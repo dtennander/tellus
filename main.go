@@ -11,9 +11,9 @@ import (
 	"tellus/tellus/http"
 )
 
-const DefaultConfigurationLocation = "/config/tellus.yml"
+const defaultConfigurationLocation = "/config/tellus.yml"
 
-// Deployment configuration that configures Tellus.
+// Configuration used to configure Tellus.
 type Configuration struct {
 	// The directory in which all repositories will be checked out and stored.
 	RepositoryRootDirectory string  `yaml:"repositoryRootDirectory"`
@@ -27,9 +27,9 @@ type Configuration struct {
 			Location string	        `yaml:"location"`
 		}                           `yaml:"privateKey"`
 		// The integration id given by Github.
-		IntegrationId int           `yaml:"integrationId"`
+		IntegrationID int           `yaml:"integrationId"`
 		// The installation id given by Github.
-		InstallationId int          `yaml:"installationId"`
+		InstallationID int          `yaml:"installationId"`
 	}  	                            `yaml:"github"`
 }
 
@@ -43,12 +43,12 @@ func main() {
 	tellusClient, err := tellus.NewClient(
 		config.Github.PrivateKey.Location,
 		config.RepositoryRootDirectory,
-		config.Github.IntegrationId,
-		config.Github.InstallationId)
+		config.Github.IntegrationID,
+		config.Github.InstallationID)
 	if err != nil {
 		log.Print(err.Error())
 	}
-	http.StartHttpServer(config.WebPort, tellusClient)
+	http.StartHTTPServer(config.WebPort, tellusClient)
 }
 
 func getConfiguration() (*Configuration, error) {
@@ -68,7 +68,7 @@ func getConfiguration() (*Configuration, error) {
 func getConfigLocation() string {
 	fl := os.Getenv("CONFIG_FILE")
 	if fl == "" {
-		fl = DefaultConfigurationLocation
+		fl = defaultConfigurationLocation
 	}
 	return fl
 }

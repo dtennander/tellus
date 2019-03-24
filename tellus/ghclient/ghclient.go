@@ -1,4 +1,4 @@
-// Package for writing Tellus comments and checks to Github.com.
+// Package ghclient writes Tellus comments and checks to Github.com.
 package ghclient
 
 import (
@@ -7,7 +7,6 @@ import (
 	"log"
 	"time"
 )
-
 
 // Interface mapped against IssuesService in "github.com/google/go-github/v24/github"
 type issueService interface {
@@ -34,7 +33,7 @@ type Client struct {
 	checksService checksService
 }
 
-// Creates a new instance of the Client.
+// NewClient creates a new instance of the Client.
 func NewClient(service issueService, service2 checksService) *Client {
 	return &Client{
 		issuesService:service,
@@ -42,7 +41,7 @@ func NewClient(service issueService, service2 checksService) *Client {
 	}
 }
 
-// Create a Tellus comment presenting the output
+// CreateComment creates a Tellus comment presenting the output
 // on pull request prNumber on repository repo belonging to the given owner.
 // The comment will have the format:
 //    Tellus ran `terraform plan` on this PR and got:
@@ -60,7 +59,7 @@ func (c *Client) CreateComment(output string, owner string, repo string, prNumbe
 	return err
 }
 
-// Creates a Tellus status on the commit on the repository repo with the given owner.
+// CreateCommitStatus creates a Tellus status on the commit on the repository repo with the given owner.
 // The status will ether be a success or a failure given the boolean flag success.
 // The status will have the following structure:
 //    Summary: Tellus have run terraform <tfCommand>

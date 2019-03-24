@@ -1,4 +1,4 @@
-// Package for handling Git repositories on disk.
+// Package gitservice handles Git repositories on disk.
 package gitservice
 
 import (
@@ -8,13 +8,13 @@ import (
 	"strings"
 )
 
-// One repository present on disk.
+// GitRepository represents a repository present on disk.
 type GitRepository struct {
 	*git.Repository
 	Directory string
 }
 
-// Fetches state from origin and then updates the working tree to the given commit.
+// Checkout fetches state from origin and then updates the working tree to the given commit.
 func (repo *GitRepository) Checkout(commit string) error {
 	if err := repo.Fetch(&git.FetchOptions{RemoteName:"origin"}); err != nil {
 		return err
@@ -29,13 +29,13 @@ func (repo *GitRepository) Checkout(commit string) error {
 	return nil
 }
 
-// Storage and maintainer of git-repos available on disk.
+// RepoStore stores and maintains git-repos available on disk.
 type RepoStore struct {
 	repos map[string]*GitRepository
 	directory string
 }
 
-// Create a new RepoStore that will use the given directory as its storage location.
+// NewRepoStore creates a new RepoStore that will use the given directory as its storage location.
 // Returns a pointer to the new store or an error if the given directory don't exists and couldn't be created.
 func NewRepoStore(directory string) (*RepoStore, error) {
 	if _, err := os.Stat(directory); os.IsNotExist(err) {
@@ -49,7 +49,7 @@ func NewRepoStore(directory string) (*RepoStore, error) {
 	}, nil
 }
 
-// Get a given repository by name.
+// GetRepo returns the repository with the given name.
 // If the repository does not exist locally a copy will be downloaded and stored on disk.
 // Returns an error if the repository didn't exist and couldn't be downloaded.
 func (rs *RepoStore) GetRepo(repoName string) (*GitRepository, error) {
@@ -64,14 +64,14 @@ func (rs *RepoStore) GetRepo(repoName string) (*GitRepository, error) {
 	return repository, nil
 }
 
-func createRepo(parentDirectory string, repoId string) (*GitRepository, error) {
-	split := strings.Split(repoId, "/")
+func createRepo(parentDirectory string, repoID string) (*GitRepository, error) {
+	split := strings.Split(repoID, "/")
 	repoName := split[len(split)-1]
 	directory := parentDirectory + "/" + repoName
 	repo, err := git.PlainOpen(directory)
 	if err != nil {
 		repo, err = git.PlainClone(directory, false, &git.CloneOptions{
-			URL: "https://github.com/" + repoId,
+			URL: "https://github.com/" + repoID,
 		})
 		if err != nil {
 			return nil, err
