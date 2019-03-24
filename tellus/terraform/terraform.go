@@ -23,7 +23,7 @@ func Plan(directory string) (string, bool) {
 	planCmd.Stdout = output
 	planCmd.Stderr = output
 	err := planCmd.Run()
-	return  output.String(), err == nil
+	return output.String(), err == nil
 }
 
 // Apply runs terraform apply in the given directory and returns the resulting output as a string.

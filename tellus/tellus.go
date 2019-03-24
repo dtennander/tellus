@@ -1,4 +1,4 @@
-// Package Tellus is a Bot that integrates terraform CI/CD into any github repository.
+// Package tellus is a Bot that integrates terraform CI/CD into any github repository.
 // Tellus assumes that it is run in an environment that is
 // authenticated and authorized to execute the terraform commands.
 // It also needs git and terraform present on the running environment.
@@ -18,8 +18,8 @@ import (
 
 // Client is the main API of the Tellus bot.
 type Client struct {
-	repositories  *gitservice.RepoStore
-	output 		  *ghclient.Client
+	repositories *gitservice.RepoStore
+	output       *ghclient.Client
 }
 
 // NewClient creates a new Tellus client.
@@ -39,7 +39,7 @@ func NewClient(keyFile string, repoDirectory string, integrationID int, installa
 	}
 	return &Client{
 		repositories: store,
-		output: ghclient.NewClient(client.Issues, client.Checks),
+		output:       ghclient.NewClient(client.Issues, client.Checks),
 	}, nil
 }
 
@@ -66,7 +66,7 @@ func (c *Client) NewPR(payload *github.PullRequestEvent) error {
 	return nil
 }
 
-func getTfDirs(baseDir string) (string ,error){
+func getTfDirs(baseDir string) (string, error) {
 	file, err := os.Open(baseDir + "/.tellus")
 	if err != nil {
 		return "", err
@@ -79,7 +79,6 @@ func getTfDirs(baseDir string) (string ,error){
 	return baseDir + "/" + config.TerraformDirectory, nil
 }
 
-
 func (c *Client) checkoutCode(repoName string, commit string) (*gitservice.GitRepository, error) {
 	log.Printf("Checking our commit %s on %s", commit, repoName)
 	log.Println(c)
@@ -90,7 +89,6 @@ func (c *Client) checkoutCode(repoName string, commit string) (*gitservice.GitRe
 	err = repo.Checkout(commit)
 	return repo, err
 }
-
 
 // NewPush handles a new push event from Github.
 // If the pushed branch is master
@@ -117,4 +115,3 @@ func (c *Client) NewPush(payload *github.PushEvent) error {
 	}
 	return nil
 }
-

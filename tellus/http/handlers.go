@@ -16,12 +16,11 @@ import (
 func StartHTTPServer(port string, client *tellus.Client) {
 	createRoutes(client)
 	log.Printf("starting webserver on port: %s", port)
-	err := http.ListenAndServe(":" + port, nil)
+	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		panic(err)
 	}
 }
-
 
 func createRoutes(tellusClient *tellus.Client) {
 	http.HandleFunc("/api/github/webhook", withLogging(webhookHandler(tellusClient)))
@@ -87,4 +86,3 @@ func handlePush(tellusClient *tellus.Client, reader io.Reader) {
 	}
 	log.Printf("done handling push event")
 }
-

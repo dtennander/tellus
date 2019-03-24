@@ -1,4 +1,7 @@
-# Tellus
+Tellus
+======
+[![GoDoc](https://godoc.org/github.com/DiTo04/tellus?status.svg)](https://godoc.org/github.com/DiTo04/tellus)
+
 A bot for planing and applying Terraform code.
 
 ## Configuration

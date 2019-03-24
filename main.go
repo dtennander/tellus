@@ -16,21 +16,21 @@ const defaultConfigurationLocation = "/config/tellus.yml"
 // Configuration used to configure Tellus.
 type Configuration struct {
 	// The directory in which all repositories will be checked out and stored.
-	RepositoryRootDirectory string  `yaml:"repositoryRootDirectory"`
+	RepositoryRootDirectory string `yaml:"repositoryRootDirectory"`
 	// The port on which the web server will be running.
-	WebPort string                  `yaml:"webPort"`
+	WebPort string `yaml:"webPort"`
 	// Github configuration
-	Github struct{
+	Github struct {
 		// Information about the private key given by Github to authenticate Tellus.
-		PrivateKey struct{
+		PrivateKey struct {
 			// The location of the private key.
-			Location string	        `yaml:"location"`
-		}                           `yaml:"privateKey"`
+			Location string `yaml:"location"`
+		} `yaml:"privateKey"`
 		// The integration id given by Github.
-		IntegrationID int           `yaml:"integrationId"`
+		IntegrationID int `yaml:"integrationId"`
 		// The installation id given by Github.
-		InstallationID int          `yaml:"installationId"`
-	}  	                            `yaml:"github"`
+		InstallationID int `yaml:"installationId"`
+	} `yaml:"github"`
 }
 
 func main() {

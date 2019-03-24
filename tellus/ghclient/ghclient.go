@@ -36,8 +36,8 @@ type Client struct {
 // NewClient creates a new instance of the Client.
 func NewClient(service issueService, service2 checksService) *Client {
 	return &Client{
-		issuesService:service,
-		checksService:service2,
+		issuesService: service,
+		checksService: service2,
 	}
 }
 
