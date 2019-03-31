@@ -1,3 +1,4 @@
+// Package ghclient writes Tellus comments and checks to Github.com.
 package ghclient
 
 import (
@@ -7,6 +8,7 @@ import (
 	"time"
 )
 
+// Interface mapped against IssuesService in "github.com/google/go-github/v24/github"
 type issueService interface {
 	CreateComment(
 		ctx context.Context,
@@ -16,6 +18,7 @@ type issueService interface {
 		comment *github.IssueComment) (*github.IssueComment, *github.Response, error)
 }
 
+// Interface mapped against ChecksService in "github.com/google/go-github/v24/github"
 type checksService interface {
 	CreateCheckRun(
 		ctx context.Context,
@@ -24,19 +27,28 @@ type checksService interface {
 		options github.CreateCheckRunOptions) (*github.CheckRun, *github.Response, error)
 }
 
+// Client handling the information sent to Github.
 type Client struct {
 	issuesService issueService
 	checksService checksService
 }
 
+// NewClient creates a new instance of the Client.
 func NewClient(service issueService, service2 checksService) *Client {
 	return &Client{
-		issuesService:service,
-		checksService:service2,
+		issuesService: service,
+		checksService: service2,
 	}
 }
 
-func (c *Client) CreateComment(output string, owner string, repo string, prNumber int, success bool) error {
+// CreateComment creates a Tellus comment presenting the output
+// on pull request prNumber on repository repo belonging to the given owner.
+// The comment will have the format:
+//    Tellus ran `terraform plan` on this PR and got:
+//    ```
+//    <output>
+//    ```
+func (c *Client) CreateComment(output string, owner string, repo string, prNumber int) error {
 	result := "Tellus ran `terraform plan` on this PR and got:\n```\n" + output + "\n```"
 	_, _, err := c.issuesService.CreateComment(
 		context.Background(),
@@ -47,6 +59,12 @@ func (c *Client) CreateComment(output string, owner string, repo string, prNumbe
 	return err
 }
 
+// CreateCommitStatus creates a Tellus status on the commit on the repository repo with the given owner.
+// The status will ether be a success or a failure given the boolean flag success.
+// The status will have the following structure:
+//    Summary: Tellus have run terraform <tfCommand>
+//    Title: Tellus <tfCommand>
+//    Name: Tellus have run terraform <tfCommand>
 func (c *Client) CreateCommitStatus(owner string, repo string, commit string, success bool, output string, tfCommand string) error {
 	completed := "completed"
 	var conclusion string

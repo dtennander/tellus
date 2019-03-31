@@ -1,3 +1,7 @@
+// Package tellus is a Bot that integrates terraform CI/CD into any github repository.
+// Tellus assumes that it is run in an environment that is
+// authenticated and authorized to execute the terraform commands.
+// It also needs git and terraform present on the running environment.
 package tellus
 
 import (
@@ -12,13 +16,19 @@ import (
 	"tellus/tellus/terraform"
 )
 
+// Client is the main API of the Tellus bot.
 type Client struct {
-	repositories  *gitservice.RepoStore
-	output 		  *ghclient.Client
+	repositories *gitservice.RepoStore
+	output       *ghclient.Client
 }
 
-func NewClient(keyFile string, repoDirectory string, integrationId int, installationId int) (*Client, error) {
-	itr, err := ghinstallation.NewKeyFromFile(http.DefaultTransport, integrationId, installationId, keyFile)
+// NewClient creates a new Tellus client.
+//
+// keyFile should be the private key given by Github to authenticate the app,
+// repoDirectory is the directory in which all repositories downloaded will be stored.
+// integrationId and installationID are ids given by Github to each App <-> Installation.
+func NewClient(keyFile string, repoDirectory string, integrationID int, installationID int) (*Client, error) {
+	itr, err := ghinstallation.NewKeyFromFile(http.DefaultTransport, integrationID, installationID, keyFile)
 	if err != nil {
 		return nil, err
 	}
@@ -29,11 +39,11 @@ func NewClient(keyFile string, repoDirectory string, integrationId int, installa
 	}
 	return &Client{
 		repositories: store,
-		output: ghclient.NewClient(client.Issues, client.Checks),
+		output:       ghclient.NewClient(client.Issues, client.Checks),
 	}, nil
 }
 
-// Handle a new Pull Request.
+// NewPR handles a new Pull Request.
 // This will checkout the code, run terraform and send PR comment together with status check on commit.
 func (c *Client) NewPR(payload *github.PullRequestEvent) error {
 	repo, err := c.checkoutCode(*payload.Repo.FullName, *payload.PullRequest.Head.SHA)
@@ -49,14 +59,14 @@ func (c *Client) NewPR(payload *github.PullRequestEvent) error {
 	if err != nil {
 		return err
 	}
-	err = c.output.CreateComment(output, owner, repoName, *payload.Number, ok)
+	err = c.output.CreateComment(output, owner, repoName, *payload.Number)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func getTfDirs(baseDir string) (string ,error){
+func getTfDirs(baseDir string) (string, error) {
 	file, err := os.Open(baseDir + "/.tellus")
 	if err != nil {
 		return "", err
@@ -69,7 +79,6 @@ func getTfDirs(baseDir string) (string ,error){
 	return baseDir + "/" + config.TerraformDirectory, nil
 }
 
-
 func (c *Client) checkoutCode(repoName string, commit string) (*gitservice.GitRepository, error) {
 	log.Printf("Checking our commit %s on %s", commit, repoName)
 	log.Println(c)
@@ -81,6 +90,9 @@ func (c *Client) checkoutCode(repoName string, commit string) (*gitservice.GitRe
 	return repo, err
 }
 
+// NewPush handles a new push event from Github.
+// If the pushed branch is master
+// this will checkout the code, run terraform apply and send commit status bach with the result.
 func (c *Client) NewPush(payload *github.PushEvent) error {
 	if *payload.Ref != "refs/heads/master" {
 		log.Printf("Ignoring push to %s", *payload.Ref)
@@ -103,4 +115,3 @@ func (c *Client) NewPush(payload *github.PushEvent) error {
 	}
 	return nil
 }
-

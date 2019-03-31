@@ -1,3 +1,5 @@
+// Package terraform runs terraform commands.
+// It requires that terraform in present on the PATH.
 package terraform
 
 import (
@@ -7,7 +9,8 @@ import (
 	"strings"
 )
 
-
+// Plan runs terraform plan in the given directory and returns the resulting output as a string.
+// If the run wasn't successful the second return argument will be false.
 func Plan(directory string) (string, bool) {
 	if err := os.Chdir(string(directory)); err != nil {
 		return "", false
@@ -20,9 +23,11 @@ func Plan(directory string) (string, bool) {
 	planCmd.Stdout = output
 	planCmd.Stderr = output
 	err := planCmd.Run()
-	return  output.String(), err == nil
+	return output.String(), err == nil
 }
 
+// Apply runs terraform apply in the given directory and returns the resulting output as a string.
+// If the run wasn't successful the second return argument will be false.
 func Apply(directory string) (string, bool) {
 	if err := os.Chdir(string(directory)); err != nil {
 		return err.Error(), false
