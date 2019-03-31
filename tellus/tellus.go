@@ -47,12 +47,10 @@ func NewClient(keyFile string, repoDirectory string, integrationID int, installa
 // This will checkout the code, run terraform and send PR comment together with status check on commit.
 func (c *Client) NewPR(payload *github.PullRequestEvent) error {
 	repo, err := c.checkoutCode(*payload.Repo.FullName, *payload.PullRequest.Head.SHA)
-	tfDirectory, err := getTfDirs(repo.Directory)
-	if err != nil || tfDirectory == "" {
-		return err
-	}
-	log.Printf("found TF directory: %s", tfDirectory)
-	output, ok := terraform.Plan(tfDirectory)
+	config, err := getRepoConfig(repo.Directory)
+	tfDir := repo.Directory + "/" + config.TerraformDirectory
+	log.Printf("found TF directory: %s", tfDir)
+	output, ok := terraform.Plan(tfDir)
 	owner := *payload.Repo.Owner.Login
 	repoName := *payload.Repo.Name
 	err = c.output.CreateCommitStatus(owner, repoName, *payload.PullRequest.Head.SHA, ok, output, "plan")
@@ -66,17 +64,14 @@ func (c *Client) NewPR(payload *github.PullRequestEvent) error {
 	return nil
 }
 
-func getTfDirs(baseDir string) (string, error) {
+func getRepoConfig(baseDir string) (*Configuration, error) {
 	file, err := os.Open(baseDir + "/.tellus")
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	var config Configuration
-	err = yaml.NewDecoder(file).Decode(&config)
-	if err != nil {
-		return "", err
-	}
-	return baseDir + "/" + config.TerraformDirectory, nil
+	config := NewDefaultConfig()
+	err = yaml.NewDecoder(file).Decode(config)
+	return config, err
 }
 
 func (c *Client) checkoutCode(repoName string, commit string) (*gitservice.GitRepository, error) {
@@ -94,19 +89,20 @@ func (c *Client) checkoutCode(repoName string, commit string) (*gitservice.GitRe
 // If the pushed branch is master
 // this will checkout the code, run terraform apply and send commit status bach with the result.
 func (c *Client) NewPush(payload *github.PushEvent) error {
-	if *payload.Ref != "refs/heads/master" {
-		log.Printf("Ignoring push to %s", *payload.Ref)
-		return nil
-	}
 	fullName := *payload.Repo.FullName
 	commit := *payload.HeadCommit.ID
 	repo, err := c.checkoutCode(fullName, commit)
-	tfDirectory, err := getTfDirs(repo.Directory)
-	if err != nil || tfDirectory == "" {
+	config, err := getRepoConfig(repo.Directory)
+	if err != nil {
 		return err
 	}
-	log.Printf("found TF directory: %s", tfDirectory)
-	output, ok := terraform.Apply(tfDirectory)
+	if *payload.Ref != "refs/heads/"+config.Branch {
+		log.Printf("Ignoring push to %s", *payload.Ref)
+		return nil
+	}
+	tfDir := repo.Directory + "/" + config.Branch
+	log.Printf("found TF directory: %s", tfDir)
+	output, ok := terraform.Apply(tfDir)
 	owner := *payload.Repo.Owner.Name
 	repoName := *payload.Repo.Name
 	err = c.output.CreateCommitStatus(owner, repoName, commit, ok, output, "apply")
