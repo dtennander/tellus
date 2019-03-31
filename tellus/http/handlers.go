@@ -87,7 +87,7 @@ func handlePush(tellusClient *tellus.Client, reader io.Reader) {
 
 func handleCheckReRun(client *tellus.Client, reader io.Reader) {
 	var checkEvent github.CheckRunEvent
-	err := json.NewDecoder(reader).Decode(checkEvent)
+	err := json.NewDecoder(reader).Decode(&checkEvent)
 	if err != nil {
 		print(err.Error())
 		return

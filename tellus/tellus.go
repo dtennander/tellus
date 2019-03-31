@@ -120,12 +120,14 @@ func (c *Client) CheckRunEvent(event *github.CheckRunEvent) error {
 	tfDir := repo.Directory + "/" + config.TerraformDirectory
 	var result, command string
 	var ok bool
-	if *event.CheckRun.CheckSuite.HeadBranch == "refs/heads/"+config.Branch {
+	if *event.CheckRun.CheckSuite.HeadBranch == config.Branch {
 		command = "apply"
 		result, ok = terraform.Apply(tfDir)
 	} else {
 		command = "plan"
 		result, ok = terraform.Plan(tfDir)
 	}
-	return c.output.CreateCommitStatus(*event.Repo.Owner.Name, *event.Repo.Name, commit, ok, result, command)
+	repoOwner := *event.Repo.Owner.Login //.Name does not exist...
+	repoName := *event.Repo.Name
+	return c.output.CreateCommitStatus(repoOwner, repoName, commit, ok, result, command)
 }
