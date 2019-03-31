@@ -100,7 +100,7 @@ func (c *Client) NewPush(payload *github.PushEvent) error {
 		log.Printf("Ignoring push to %s", *payload.Ref)
 		return nil
 	}
-	tfDir := repo.Directory + "/" + config.Branch
+	tfDir := repo.Directory + "/" + config.TerraformDirectory
 	log.Printf("found TF directory: %s", tfDir)
 	output, ok := terraform.Apply(tfDir)
 	owner := *payload.Repo.Owner.Name
