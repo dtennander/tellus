@@ -22,7 +22,7 @@ type issueService interface {
 type checksService interface {
 	CreateCheckRun(
 		ctx context.Context,
-		Name string,
+		name string,
 		repo string,
 		options github.CreateCheckRunOptions) (*github.CheckRun, *github.Response, error)
 }
