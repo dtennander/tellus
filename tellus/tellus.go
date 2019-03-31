@@ -57,11 +57,7 @@ func (c *Client) NewPR(payload *github.PullRequestEvent) error {
 	if err != nil {
 		return err
 	}
-	err = c.output.CreateComment(output, owner, repoName, *payload.Number)
-	if err != nil {
-		return err
-	}
-	return nil
+	return c.output.CreateComment(output, owner, repoName, *payload.Number)
 }
 
 func getRepoConfig(baseDir string) (*Configuration, error) {
@@ -105,9 +101,31 @@ func (c *Client) NewPush(payload *github.PushEvent) error {
 	output, ok := terraform.Apply(tfDir)
 	owner := *payload.Repo.Owner.Name
 	repoName := *payload.Repo.Name
-	err = c.output.CreateCommitStatus(owner, repoName, commit, ok, output, "apply")
+	return c.output.CreateCommitStatus(owner, repoName, commit, ok, output, "apply")
+}
+
+// CheckRunEvent handles check_run events and reruns checks if the action is "rerequested"
+func (c *Client) CheckRunEvent(event *github.CheckRunEvent) error {
+	if *event.Action != "rerequested" {
+		log.Printf("Ignoring check_run event action: %s", *event.Action)
+		return nil
+	}
+	fullName := *event.Repo.FullName
+	commit := *event.CheckRun.HeadSHA
+	repo, err := c.checkoutCode(fullName, commit)
+	config, err := getRepoConfig(repo.Directory)
 	if err != nil {
 		return err
 	}
-	return nil
+	tfDir := repo.Directory + "/" + config.TerraformDirectory
+	var result, command string
+	var ok bool
+	if *event.CheckRun.CheckSuite.HeadBranch == "refs/heads/"+config.Branch {
+		command = "apply"
+		result, ok = terraform.Apply(tfDir)
+	} else {
+		command = "plan"
+		result, ok = terraform.Plan(tfDir)
+	}
+	return c.output.CreateCommitStatus(*event.Repo.Owner.Name, *event.Repo.Name, commit, ok, result, command)
 }

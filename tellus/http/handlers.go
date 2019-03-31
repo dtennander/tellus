@@ -48,6 +48,8 @@ func webhookHandler(tellus *tellus.Client) http.HandlerFunc {
 			handlePullRequest(tellus, r.Body)
 		case "push":
 			handlePush(tellus, r.Body)
+		case "check_run":
+			handleCheckReRun(tellus, r.Body)
 		}
 	}
 }
@@ -80,4 +82,20 @@ func handlePush(tellusClient *tellus.Client, reader io.Reader) {
 		return
 	}
 	log.Printf("done handling push event")
+}
+
+
+func handleCheckReRun(client *tellus.Client, reader io.Reader) {
+	var checkEvent github.CheckRunEvent
+	err := json.NewDecoder(reader).Decode(checkEvent)
+	if err != nil {
+		print(err.Error())
+		return
+	}
+	err = client.CheckRunEvent(&checkEvent)
+	if err != nil {
+		print(err.Error())
+		return
+	}
+	log.Printf("done handling run check event")
 }
